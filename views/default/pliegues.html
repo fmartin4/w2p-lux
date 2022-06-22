@@ -1,0 +1,14 @@
+{{extend 'generic.html'}}
+
+{{block prefooter}}
+    {{super}}
+    <div class="container">
+        <div class="row">
+            <div id="buttons_menu" class="col">
+                <div class="fm4_private_alert fm4_center">
+                    {{=A('Charts', _href=URL('pliegues_chart'))}}
+                </div>
+            </div>
+        </div>
+    </div>
+{{end}}

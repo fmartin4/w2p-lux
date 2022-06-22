@@ -1,0 +1,81 @@
+/** these MUST stay **/
+.web2py_table { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.web2py_grid .row_buttons { min-height: 20px; }
+.web2py_grid .row_buttons a, .web2py_paginator ul li a, .web2py_search_actions a,
+.web2py_console input[type=submit], .web2py_console input[type=button], .web2py_console button {padding: 3px 12px;}
+.web2py_grid tbody td { padding: 1px 5px; }
+body { background: url('images/background.png') repeat-x #eee; }
+a { color: #349C01; }
+.page-header h1 { color: #349C01; }
+.page-header h2 { color: white; font-style: italic; font-size: 14px;}
+.statusbar { background: #333333; border-bottom: 5px #349C01 solid; }
+.statusbar a { color: white; }
+.footer { border-top: 2px #390 solid; }
+.form-control{ padding:.1rem .1rem; font-size:.75rem; line-height:1; } /*Search in navbar/menu*/
+.navbar,.footer { padding:.1rem; line-height:1; } /*Search in navbar/menu*/
+/** end **/
+
+.fm4_center {text-align:center; vertical-align:middle}
+
+.fm4_red_box {
+  border: 2px solid red;
+  border-radius: 5px;
+}
+.fm4_2px {
+  margin-top: 2px;
+  margin-bottom: 2px;
+  margin-right: 2px;
+  margin-left: 2px;
+}
+
+
+/* Reduce el alto de fila en la tabla*/
+.web2py_grid .row_buttons a {
+    padding: 1px 6px;
+}
+
+/* Reduce el alto del pie de página*/
+.footer > .row {
+    margin-top: 0px;
+}
+/* Reduce separación vertical*/
+.main-container {
+    margin-top: 4px;
+}
+.jumbotron {
+    margin-bottom: 0px;
+}
+.web2py_counter {
+    margin-top: 1px;
+}
+.web2py_grid thead th {
+    padding: 2px 5px;
+}
+
+div.w2p_export_menu {
+    margin: 1px 0;
+    display:none;
+}
+
+div.web2py_counter {
+    display:none;
+}
+
+body {   margin-bottom: 30px; }
+
+.footer {
+  height:1.8em;
+  padding:0.5em 0;
+  clear:both;
+}
+.fm4_private_alert {
+  background-color: red;
+  padding:0 0;
+  margin:0px 1px;
+  min-height: 0px;
+}
+.fm4_private_alert a {
+    color: white;
+}
+
+

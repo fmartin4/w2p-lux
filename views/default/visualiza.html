@@ -1,0 +1,12 @@
+{{extend 'layout.html'}}
+
+[ {{=A('index', _href=URL('index'))}} ]
+{{if 'grid' in globals():}}
+    Tabla {{=request.args[0]}}
+    {{=grid}}
+{{pass}}
+
+{{block page_js}}
+    <!--script src="//cdn.flowplayer.com/releases/native/stable/plugins/dash.min.js"></script-->
+{{end page_js}}
+

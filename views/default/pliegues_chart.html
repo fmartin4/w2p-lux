@@ -1,0 +1,107 @@
+{{extend 'layout.html'}}
+
+{{block head}
+    <!--link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css"-->
+{{end}}
+
+<!--<h2>{{=' '.join(x.capitalize() for x in request.function.split('_'))}}</h2>-->
+<h2>Gráficas</h2>
+
+<div class="container">
+    <div class="row">
+        {{
+        for i in range(len(charts)): }}
+        <div id="dchart{{=i}}" class="col">
+            <div class="fm4_center">
+                <canvas id="cchart{{=i}}" width="360" height="240"></canvas>
+            </div>
+        </div>
+        {{pass}}
+    </div>
+</div>
+
+<!--<script src="https://cdn.jsdelivr.net/npm/moment@2.27.0"></script>-->
+<!--<script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-moment@0.1.1"></script>-->
+<!--<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>-->
+
+<!--<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.3/Chart.bundle.min.js"></script>-->
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js/dist/chart.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns/dist/chartjs-adapter-date-fns.bundle.min.js"></script>
+
+<script>
+    //const backgroundColors = ['rgb(255, 99, 132)','rgb(99, 255, 132)']
+    const backgroundColors = ['rgb(191,0,0)','rgb(0,191,0)','rgb(0,0,191)','rgb(191,191,0)',
+        'rgb(191,0,191)','rgb(0,191,191)','rgb(191,191,191)',
+        'rgb(127,0,0)','rgb(0,127,0)','rgb(0,0,127)','rgb(127,127,0)',
+        'rgb(127,0,127)','rgb(0,127,127)','rgb(127,127,127)',
+        'rgb(255,0,0)','rgb(0,255,0)','rgb(0,0,255)','rgb(255,255,0)',
+        'rgb(255,0,255)','rgb(0,255,255)','rgb(255,255,255)',
+        'rgb(63,0,0)','rgb(0,63,0)','rgb(0,0,63)','rgb(63,63,0)',
+        'rgb(63,0,63)','rgb(0,63,63)','rgb(63,63,63)',
+        'rgb(255,63,63)','rgb(63,255,63)','rgb(63,63,255)','rgb(255,255,63)',
+        'rgb(255,63,255)','rgb(63,255,255)','rgb(255,255,255)',
+        'rgb(255,127,127)','rgb(127,255,127)','rgb(127,127,255)','rgb(255,255,127)',
+        'rgb(255,127,255)','rgb(127,255,255)','rgb(255,255,255)',
+        'rgb(255,191,191)','rgb(191,255,191)','rgb(191,191,255)','rgb(255,255,191)',
+        'rgb(255,191,255)','rgb(191,255,255)','rgb(255,255,255)']
+
+    const borderColors = ['rgb(220,0,0)','rgb(0,220,0)','rgb(0,0,220)','rgb(220,220,0)',
+        'rgb(220,0,220)','rgb(0,220,220)','rgb(220,220,220)',
+        'rgb(127,0,0)','rgb(0,127,0)','rgb(0,0,127)','rgb(127,127,0)',
+        'rgb(127,0,127)','rgb(0,127,127)','rgb(127,127,127)',
+        'rgb(191,0,0)','rgb(0,191,0)','rgb(0,0,191)','rgb(191,191,0)',
+        'rgb(191,0,191)','rgb(0,191,191)','rgb(191,191,191)',
+        'rgb(255,0,0)','rgb(0,255,0)','rgb(0,0,255)','rgb(255,255,0)',
+        'rgb(255,0,255)','rgb(0,255,255)','rgb(255,255,255)',
+        'rgb(63,0,0)','rgb(0,63,0)','rgb(0,0,63)','rgb(63,63,0)',
+        'rgb(63,0,63)','rgb(0,63,63)','rgb(63,63,63)',
+        'rgb(255,63,63)','rgb(63,255,63)','rgb(63,63,255)','rgb(255,255,63)',
+        'rgb(255,63,255)','rgb(63,255,255)','rgb(255,255,255)',
+        'rgb(255,127,127)','rgb(127,255,127)','rgb(127,127,255)','rgb(255,255,127)',
+        'rgb(255,127,255)','rgb(127,255,255)','rgb(255,255,255)',
+        'rgb(255,191,191)','rgb(191,255,191)','rgb(191,191,255)','rgb(255,255,191)',
+        'rgb(255,191,255)','rgb(191,255,255)','rgb(255,255,255)']
+    {{
+    for nchart in range(len(charts)):
+        series_names = []
+        series_data = []
+        for serie in charts[nchart]:
+            series_names.append(serie)
+            series_data.append(charts[nchart][serie])
+            pass
+        }}
+        const cchart{{=nchart}} = new Chart(
+            document.getElementById('cchart{{=nchart}}'),
+            {
+                type: 'line',
+                data:  {
+                    labels: {{=XML(str(labels))}},
+                    datasets: [
+                    {{for i,data in enumerate(series_data):}}
+                        {
+                          label: '{{=series_names[i]}}',
+                          backgroundColor: backgroundColors[{{=i}}],
+                          borderColor: borderColors[{{=i}}],
+                          data: {{=data}},
+                        },
+                    {{pass}}
+                    ]
+                },
+                options: {
+                    scales: {
+                        x: {
+                            type: 'time',
+                            time: {
+                                unit: 'day'
+                            }
+                        }
+                    }
+                }
+
+            }
+        );
+        {{
+        pass
+    }}
+</script>
