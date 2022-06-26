@@ -60,5 +60,5 @@ def date_range():
 def croned():
     logger.debug('cron order')
     res = auto_import_silent()
-    with open(r'c:\temp\kk.log','a+') as log:
-        log.writelines(['%s log' % datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S'), res])
+    # with open(r'c:\temp\kk.log','a+') as log:
+    #     log.writelines(['%s log' % datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S'), res])
