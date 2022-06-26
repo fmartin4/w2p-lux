@@ -68,12 +68,14 @@ body {   margin-bottom: 3px; }
   padding:0.5em 0;
   clear:both;
 }
+
 .fm4_private_alert {
   background-color: red;
   padding:0 0;
   margin:0px 1px;
   min-height: 0px;
 }
+
 .fm4_private_alert a {
     color: white;
 }
