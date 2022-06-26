@@ -56,7 +56,6 @@ def date_range():
     response.view = 'generic.html'  # use a generic view
     return dict(form=form)
 
-
 def croned():
     logger.debug('cron order')
     res = auto_import_silent()
