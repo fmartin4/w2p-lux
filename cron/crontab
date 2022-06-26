@@ -1,1 +1,7 @@
 #crontab
+#0-59/1  *  *  *  *  root python /path/to/python/script.py
+#30      3  *  *  *  root *applications/admin/cron/db_vacuum.py
+#*/30    *  *  *  *  root **applications/admin/cron/something.py
+#@reboot root    *mycontroller/myfunction
+#@hourly root    *applications/admin/cron/expire_sessions.py
+0      1  *  *  *  fmartin4 *lux/croned

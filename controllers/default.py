@@ -4,6 +4,65 @@
 # this file is released under public domain and you can use without limitations
 # -------------------------------------------------------------------------
 # logger.debug('default.py loading')
+#
+
+# ---- example index page ----
+@auth.requires_login()
+def index():
+    # logger.debug("args: %s vars: %s", str(request.args), str(request.vars))
+    if not session.flash_sent:
+        session.flash_sent = True
+    response.title = T("Lux")
+    response.subtitle = T("Índice")
+    session.counter = (session.counter or 0) + 1
+
+    # links = [[x.stem, "visualiza", dict(file=x.name)] for x in p.iterdir() if x.is_file()]
+    # links = [
+    #     # lambda row: A('', _data_toggle="tooltip", _title="Borrar video del disco",
+    #     #               _class='icon trash icon-trash glyphicon glyphicon-trash',
+    #     #               _href=URL("default", "borra", args=[row.id], vars=request.vars)),
+    #     lambda row: A('', _data_toggle="tooltip", _title="Calcular IGC", _class='fa fa-desktop',
+    #                   _href=URL("default", "igc", args=[row.id]))
+    #
+    #     # oi oi-monitor fas fa-tv  btn btn-primary fa fa-desktop
+    # ]
+    export_classes = dict(json=False, html=False, tsv=False, xml=False, csv_with_hidden_cols=False,
+                          tsv_with_hidden_cols=False)
+    lines = int(get_cookie_setting('lines', 18))
+
+    query = (db.precio.id)
+    grid = SQLFORM.grid(query, user_signature=False, showbuttontext=False, args=request.args[:1],
+                        exportclasses=export_classes, paginate=lines, orderby=~db.precio.momento)
+    # , maxtextlengths={'videos.nombre': 110, 'videos.ruta': 70} links=links, paginate=10, editable=False,
+    #  args=request.args[:1], , create=False, deletable=False  deletable=True, create=False, user_signature=False,
+    #  showbuttontext=False,
+    return dict(grid=grid)
+
+
+@auth.requires_membership('admin')  # can only be accessed by members of admin groupd
+def media_diaria():
+    # rows = db(db.precio).select()
+    # for row in rows:
+    #     row.update_record(dia=row.momento.date(), hora=row.momento.time().hour)
+    # db.commit()
+    response.view = 'generic.html'  # use a generic view
+    # logger.debug("args: %s vars: %s", str(request.args), str(request.vars))
+    # export_classes = dict(csv=True, json=False, html=False, tsv=False, xml=False, csv_with_hidden_cols=False,
+    #                       tsv_with_hidden_cols=False)
+    # lines = int(get_cookie_setting('lines', 18))
+
+    # media = db.precio.PVPC.avg()
+    #
+    # q = db(db.precio).select(db.precio.dia, db.precio.PVPC.avg(), groupby=db.precio.dia)
+    # # return q
+    query = (db.precio.id)
+    grid = SQLFORM.grid(query, fields=[db.precio.dia, db.precio.PVPC],
+                        groupby=db.precio.dia)  # , args=[tablename], deletable=False, editable=False query
+    # query = (db.precio.id)
+    # grid = SQLFORM.grid(query, args=request.args[:1], exportclasses=export_classes, paginate=lines,
+    #                     orderby=~db.precio.momento) # user_signature=False, showbuttontext=False,
+    return dict(grid=grid)
+
 
 def fromisoformat(date_str: str):
     # logger.debug('date_str: "%s" type:%s', date_str, type(date_str))
@@ -25,146 +84,88 @@ def fromisoformat(date_str: str):
     return None
 
 
-# ---- example index page ----
-@auth.requires_login()
-def index():
-    # logger.debug("args: %s vars: %s", str(request.args), str(request.vars))
-    if not session.flash_sent:
-        session.flash_sent = True
-    response.title = T("Progreso")
-    response.subtitle = T("Índice")
-    session.counter = (session.counter or 0) + 1
-
-    # links = [[x.stem, "visualiza", dict(file=x.name)] for x in p.iterdir() if x.is_file()]
-    # links = [
-    #     # lambda row: A('', _data_toggle="tooltip", _title="Borrar video del disco",
-    #     #               _class='icon trash icon-trash glyphicon glyphicon-trash',
-    #     #               _href=URL("default", "borra", args=[row.id], vars=request.vars)),
-    #     lambda row: A('', _data_toggle="tooltip", _title="Calcular IGC", _class='fa fa-desktop',
-    #                   _href=URL("default", "igc", args=[row.id]))
-    #
-    #     # oi oi-monitor fas fa-tv  btn btn-primary fa fa-desktop
-    # ]
-    export_classes = dict(json=False, html=False, tsv=False, xml=False, csv_with_hidden_cols=False,
-                          tsv_with_hidden_cols=False)
-    lines = int(get_cookie_setting('lines', 18))
-    query = (db.peso.id != None)
-
-    grid = SQLFORM.grid(query, user_signature=False, showbuttontext=False,
-                        args=request.args[:1], exportclasses=export_classes,
-                        paginate=lines, maxtextlengths={'videos.nombre': 110, 'videos.ruta': 70},
-                        orderby=~db.peso.fecha)
-    # links=links, paginate=10, editable=False, args=request.args[:1], , create=False, deletable=False  deletable=True, create=False, user_signature=False, showbuttontext=False,
-    return dict(grid=grid)
-
-
-@auth.requires_login()
-def suspend():
-    # goto=XML('http://192.168.0.12:8000/suspender/default/suspend')
-    goto = request.env.http_referer
-    url = URL('suspender', 'default', 'suspend', vars=dict(goto=goto), scheme='http', host='192.168.0.12:8000')
-    logger.debug("args: %s vars: %s url:%s", str(request.args), str(request.vars), url)
-    # logger.debug("args: %s vars: %s, goto: %s", str(request.args), str(request.vars), str(goto))
-    redirect(url)
-    # return A('Suspender', _href=url)
-
-
-@auth.requires_login()
-def contorno():
-    logger.debug("args: %s vars: %s", str(request.args), str(request.vars))
-    if not session.flash_sent:
-        session.flash_sent = True
-    response.title = T("Progreso")
-    response.subtitle = T("Contorno")
-    # links = [
-    #     lambda row: A('', _data_toggle="tooltip", _title="Calcular IGC", _class='fa fa-desktop',
-    #                   _href=URL("default", "igc", args=[row.id]))
-    #
-    #     # oi oi-monitor fas fa-tv  btn btn-primary fa fa-desktop
-    # ]
-    export_classes = dict(json=False, html=False, tsv=False, xml=False, csv_with_hidden_cols=False,
-                          tsv_with_hidden_cols=False)
-    lines = int(get_cookie_setting('lines', 18))
-    query = (db.contorno.id != None)
-
-    grid = SQLFORM.grid(query, user_signature=False, showbuttontext=False,
-                        args=request.args[:1], exportclasses=export_classes,
-                        paginate=lines, maxtextlengths={'videos.nombre': 110, 'videos.ruta': 70},
-                        orderby=~db.contorno.fecha)
-    # links=links, paginate=10, editable=False, args=request.args[:1], , create=False, deletable=False  deletable=True, create=False, user_signature=False, showbuttontext=False,
-    response.view = 'generic.html'
-    return dict(grid=grid)
-
-
-@auth.requires_login()
-def pliegues():
-    logger.debug("args: %s vars: %s", str(request.args), str(request.vars))
-    if not session.flash_sent:
-        session.flash_sent = True
-    response.subtitle = T("pliegues")
-    session.counter = (session.counter or 0) + 1
-
-    # links = [[x.stem, "visualiza", dict(file=x.name)] for x in p.iterdir() if x.is_file()]
-    links = [
-        # lambda row: A('', _data_toggle="tooltip", _title="Borrar video del disco",
-        #               _class='icon trash icon-trash glyphicon glyphicon-trash',
-        #               _href=URL("default", "borra", args=[row.id], vars=request.vars)),
-        lambda row: A('', _data_toggle="tooltip", _title="Calcular IGC", _class='fa fa-desktop',
-                      _href=URL("default", "igc", args=[row.id]))
-
-        # oi oi-monitor fas fa-tv  btn btn-primary fa fa-desktop
-    ]
-    export_classes = dict(json=False, html=False, tsv=False, xml=False, csv_with_hidden_cols=False,
-                          tsv_with_hidden_cols=False)
-    lines = int(get_cookie_setting('lines', 18))
-    query = (db.igc.id != None)
-
-    grid = SQLFORM.grid(query, user_signature=False, showbuttontext=False,
-                        links=links, args=request.args[:1], exportclasses=export_classes,
-                        paginate=lines, maxtextlengths={'videos.nombre': 110, 'videos.ruta': 70},
-                        orderby=~db.igc.fecha)
-    # paginate=10, editable=False, args=request.args[:1], , create=False, deletable=False  deletable=True, create=False, user_signature=False, showbuttontext=False,
-    # response.view = 'generic.html'
-    return dict(grid=grid)
-
-
-def get_igc(row):
-    if row and row.Adbomen and row.Pectoral and row.Cuadriceps:  # and rows[0].Edad
-        nace = fromisoformat(get_user_setting('nacimiento', '01/02/1965'))
-        edad = (date.today() - nace).days / 365.25
-        pliegues = row.Adbomen + row.Pectoral + row.Cuadriceps
-        igc_ = 1.10938 - (0.0008267 + 0.0000016) * pliegues - 0.0002574 * edad
-        igc_ = 495 / igc_ - 450
-        # logger.debug("IGC: %.2f", igc_)
-        return igc_
-    else:
-        return None
-
 #
-# def date_spaciate(labels: list, series: dict):
-#     from datetime import timedelta
-#     logger.debug("")
-#     td = labels[-1]
-#     days =  (labels[-1]-labels[0]).days
-#     #days =
+# @auth.requires_login()
+# def suspend():
+#     # goto=XML('http://192.168.0.12:8000/suspender/default/suspend')
+#     goto = request.env.http_referer
+#     url = URL('suspender', 'default', 'suspend', vars=dict(goto=goto), scheme='http', host='192.168.0.12:8000')
+#     logger.debug("args: %s vars: %s url:%s", str(request.args), str(request.vars), url)
+#     # logger.debug("args: %s vars: %s, goto: %s", str(request.args), str(request.vars), str(goto))
+#     redirect(url)
+#     # return A('Suspender', _href=url)
 #
-#     labels2 = []
-#     series2 = dict()
-#     for serie in series:
-#         series2[serie] = []
 #
-#     for i in range(days):
-#         d = labels[0] + timedelta(i)
-#         labels2.append(str(d))
-#         try:
-#             ndx = labels.index(d)
-#             for serie in series:
-#                 series2[serie].append(series[serie][ndx])
-#         except Exception as ex:
-#             for serie in series:
-#                 series2[serie].append(None)
+# @auth.requires_login()
+# def contorno():
+#     logger.debug("args: %s vars: %s", str(request.args), str(request.vars))
+#     if not session.flash_sent:
+#         session.flash_sent = True
+#     response.title = T("Progreso")
+#     response.subtitle = T("Contorno")
+#     # links = [
+#     #     lambda row: A('', _data_toggle="tooltip", _title="Calcular IGC", _class='fa fa-desktop',
+#     #                   _href=URL("default", "igc", args=[row.id]))
+#     #
+#     #     # oi oi-monitor fas fa-tv  btn btn-primary fa fa-desktop
+#     # ]
+#     export_classes = dict(json=False, html=False, tsv=False, xml=False, csv_with_hidden_cols=False,
+#                           tsv_with_hidden_cols=False)
+#     lines = int(get_cookie_setting('lines', 18))
+#     query = (db.contorno.id != None)
 #
-#     return labels2, series2
+#     grid = SQLFORM.grid(query, user_signature=False, showbuttontext=False,
+#                         args=request.args[:1], exportclasses=export_classes,
+#                         paginate=lines, maxtextlengths={'videos.nombre': 110, 'videos.ruta': 70},
+#                         orderby=~db.contorno.fecha)
+#     # links=links, paginate=10, editable=False, args=request.args[:1], , create=False, deletable=False  deletable=True, create=False, user_signature=False, showbuttontext=False,
+#     response.view = 'generic.html'
+#     return dict(grid=grid)
+#
+#
+# @auth.requires_login()
+# def pliegues():
+#     logger.debug("args: %s vars: %s", str(request.args), str(request.vars))
+#     if not session.flash_sent:
+#         session.flash_sent = True
+#     response.subtitle = T("pliegues")
+#     session.counter = (session.counter or 0) + 1
+#
+#     # links = [[x.stem, "visualiza", dict(file=x.name)] for x in p.iterdir() if x.is_file()]
+#     links = [
+#         # lambda row: A('', _data_toggle="tooltip", _title="Borrar video del disco",
+#         #               _class='icon trash icon-trash glyphicon glyphicon-trash',
+#         #               _href=URL("default", "borra", args=[row.id], vars=request.vars)),
+#         lambda row: A('', _data_toggle="tooltip", _title="Calcular IGC", _class='fa fa-desktop',
+#                       _href=URL("default", "igc", args=[row.id]))
+#
+#         # oi oi-monitor fas fa-tv  btn btn-primary fa fa-desktop
+#     ]
+#     export_classes = dict(json=False, html=False, tsv=False, xml=False, csv_with_hidden_cols=False,
+#                           tsv_with_hidden_cols=False)
+#     lines = int(get_cookie_setting('lines', 18))
+#     query = (db.igc.id != None)
+#
+#     grid = SQLFORM.grid(query, user_signature=False, showbuttontext=False,
+#                         links=links, args=request.args[:1], exportclasses=export_classes,
+#                         paginate=lines, maxtextlengths={'videos.nombre': 110, 'videos.ruta': 70},
+#                         orderby=~db.igc.fecha)
+#     # paginate=10, editable=False, args=request.args[:1], , create=False, deletable=False  deletable=True, create=False, user_signature=False, showbuttontext=False,
+#     # response.view = 'generic.html'
+#     return dict(grid=grid)
+#
+#
+# def get_igc(row):
+#     if row and row.Adbomen and row.Pectoral and row.Cuadriceps:  # and rows[0].Edad
+#         nace = fromisoformat(get_user_setting('nacimiento', '01/02/1965'))
+#         edad = (date.today() - nace).days / 365.25
+#         pliegues = row.Adbomen + row.Pectoral + row.Cuadriceps
+#         igc_ = 1.10938 - (0.0008267 + 0.0000016) * pliegues - 0.0002574 * edad
+#         igc_ = 495 / igc_ - 450
+#         # logger.debug("IGC: %.2f", igc_)
+#         return igc_
+#     else:
+#         return None
 
 @auth.requires_login()
 def peso_chart():
@@ -250,17 +251,18 @@ def igc():
     redirect(request.env.http_referer)
 
 
-@auth.requires_login()
-def suspendold():
-    # logger.debug("%s vars: %s", request.args, request.vars)
-    # suspend_thread.run()
-    from datetime import timedelta as timed
-    # logger.debug("request.now: %s", request.now)
-    start = request.now + timed(seconds=5)
-    rc = scheduler.queue_task('suspend', start_time=start)
-    logger.debug("suspend scheduled(%s), redirecting", str(start))
-    redirect(request.env.http_referer)
-
+#
+# @auth.requires_login()
+# def suspendold():
+#     # logger.debug("%s vars: %s", request.args, request.vars)
+#     # suspend_thread.run()
+#     from datetime import timedelta as timed
+#     # logger.debug("request.now: %s", request.now)
+#     start = request.now + timed(seconds=5)
+#     rc = scheduler.queue_task('suspend', start_time=start)
+#     logger.debug("suspend scheduled(%s), redirecting", str(start))
+#     redirect(request.env.http_referer)
+#
 
 @auth.requires_login()
 def options():
@@ -345,18 +347,19 @@ def options():
     return dict(form=form)
 
 
-@auth.requires_login()
-def index2():
-    response.flash = T("Hello World")
-    return dict(message=T('Welcome to web2py!'))
-
-
-# ---- API (example) -----
-@auth.requires_login()
-def api_get_user_email():
-    if not request.env.request_method == 'GET': raise HTTP(403)
-    return response.json({'status': 'success', 'email': auth.user.email})
-
+#
+# @auth.requires_login()
+# def index2():
+#     response.flash = T("Hello World")
+#     return dict(message=T('Welcome to web2py!'))
+#
+#
+# # ---- API (example) -----
+# @auth.requires_login()
+# def api_get_user_email():
+#     if not request.env.request_method == 'GET': raise HTTP(403)
+#     return response.json({'status': 'success', 'email': auth.user.email})
+#
 
 # ---- Smart Grid (example) -----
 @auth.requires_membership('admin')  # can only be accessed by members of admin groupd
@@ -368,10 +371,11 @@ def grid():
     return dict(grid=grid)
 
 
-# ---- Embedded wiki (example) ----
-def wiki():
-    auth.wikimenu()  # add the wiki to the menu
-    return auth.wiki()
+#
+# # ---- Embedded wiki (example) ----
+# def wiki():
+#     auth.wikimenu()  # add the wiki to the menu
+#     return auth.wiki()
 
 
 # ---- Action for login/register/etc (required for auth) -----
@@ -393,12 +397,12 @@ def user():
     """
     return dict(form=auth())
 
-
-# ---- action to server uploaded static content (required) ---
-@cache.action()
-def download():
-    """
-    allows downloading of uploaded files
-    http://..../[app]/default/download/[filename]
-    """
-    return response.download(request, db)
+#
+# # ---- action to server uploaded static content (required) ---
+# @cache.action()
+# def download():
+#     """
+#     allows downloading of uploaded files
+#     http://..../[app]/default/download/[filename]
+#     """
+#     return response.download(request, db)

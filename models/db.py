@@ -10,7 +10,7 @@ from gluon.scheduler import Scheduler
 from pathlib import Path
 import logging
 import locale
-from datetime import date
+import datetime #import date
 
 # locale.setlocale(locale.LC_ALL, 'Spanish')
 
@@ -191,9 +191,21 @@ response.google_analytics_id = configuration.get('google.analytics_id')
 # -------------------------------------------------------------------------
 # maybe use the scheduler
 # -------------------------------------------------------------------------
+
+def task_add(a, b):
+    return a + b
+
+
 if configuration.get('scheduler.enabled'):
     from gluon.scheduler import Scheduler
     scheduler = Scheduler(db, heartbeat=configuration.get('scheduler.heartbeat'))
+    # tasks = db(db.scheduler_run.run_status != 'COMPLETED').select()
+    # for task in tasks:
+    #     logger.debug('task %s', str(task))
+    #
+    #
+    # scheduler = Scheduler(db, tasks=dict(demo1=task_add))
+    # scheduler.queue_task('demo1', pvars=dict(a=1, b=2), repeats=0, period=180)
 
 # logger.debug('Scheduler setup')
 
@@ -213,95 +225,61 @@ if configuration.get('scheduler.enabled'):
     # >>> rows = db(db.mytable.myfield == 'value').select(db.mytable.ALL)
     # >>> for row in rows: print row.id, row.myfield
 #db.files.drop()
-sizef = lambda x, row: locale.format_string('%.2f GB', x/1e9, True) \
-    if x>1e9 else locale.format_string('%.2f MB', x/1e6, True) \
-    if x>1e6 else locale.format_string('%d', x, True)
+sizef = lambda x, row: \
+    locale.format_string('%.2f GB', x/1e9, True) if x>1e9\
+        else locale.format_string('%.2f MB', x/1e6, True) if x>1e6\
+        else locale.format_string('%d', x, True)
 
-db.define_table('igc',
-                Field('fecha', 'date',
-                      represent=(lambda x, row: x.strftime('%Y-%m-%d') if x else ''),
-                      default=(lambda: date.today())),
-                Field('Peso_Kg', 'double',
+db.define_table('precio',
+                Field('momento', 'datetime',
+                      represent=(lambda x, row: x.strftime('%Y-%m-%d %H:%M:%S') if x else '') ,
+                      required=True),
+                      # default=(lambda: date.today())),
+                # Field('dia','date'),
+                # Field('hora', 'integer'),
+                # Field.Virtual('dia', lambda row: row.precio.momento.date()),
+                # Field.Virtual('hora', lambda row: row.precio.momento.time().hour),
+                Field('PVPC', 'double',
                       represent=(lambda x, row: '%.1f' % x ),
-                      default=(lambda : get_user_setting('peso', 75))),
-                Field('Pectoral', 'integer'),
-                Field('Adbomen', 'integer'),
-                Field('Cuadriceps', 'integer'),
-                Field('Triceps', 'integer'),
-                Field('Biceps', 'integer'),
-                Field('Suprailiaco', 'integer'),
-                Field('Midaxilar', 'integer'),
-                Field('Subescapular', 'integer'),
-                Field('Gemelo', 'integer'),
-                # Field('Altura_cm', 'double', default=(lambda : get_user_setting('altura', 179.5))),
-                # Field('Edad', 'integer', default=(lambda : get_user_setting('edad', 56))),
-                Field('notas', 'string', length=128),
+                      default=(lambda : get_user_setting('peso', 75)),
+                      required=True),
+                Field('Peaje', 'string', length=8),
                 Field('id', listable=False),
                 # redefine=True, # migrate='videos.table',  fake_migrate=True,
                 format='%(fecha)s'
                 )
-
-db.define_table('peso',
-                Field('fecha', 'date',
-                      represent=(lambda x, row: x.strftime('%Y-%m-%d') if x else ''),
-                      default=(lambda: date.today())),
-                Field('Kg', 'double',
-                      represent=(lambda x, row: '%.1f' % x ),
-                      default=(lambda : get_user_setting('peso', 75))),
-                Field('id', listable=False),
-                # redefine=True, # migrate='videos.table',  fake_migrate=True,
-                format='%(fecha)s'
-                )
-
-db.define_table('contorno',
-                Field('fecha', 'date',
-                      represent=(lambda x, row: x.strftime('%Y-%m-%d') if x else ''),
-                      default=(lambda: date.today())),
-                Field('biceps', 'integer'),
-                Field('triceps', 'integer'),
-                Field('antebrazo', 'integer'),
-                Field('pecho', 'integer'),
-                Field('cintura', 'integer'),
-                Field('cuadriceps', 'integer'),
-                Field('gemelos', 'integer'),
-                Field('gluteo', 'integer'),
-                # Field('Altura_cm', 'double', default=(lambda : get_user_setting('altura', 179.5))),
-                # Field('Edad', 'integer', default=(lambda : get_user_setting('edad', 56))),
-                Field('notas', 'string', length=128),
-                Field('id', listable=False),
-                # redefine=True, # migrate='videos.table',  fake_migrate=True,
-                format='%(fecha)s'
-                )
+# db.precio.day =  Field.Method(lambda row:row.time.date())
+# db.precio.hour =  Field.Method(lambda row:row.time.time().hour)
 
 db.define_table('user_settings',
                 Field('username', 'string', length=64, required=True),
                 Field('settings', 'json', required=True),
                 format='%(username)s')
 #
-def recuerda_peso(callback, set, new_data):
-    logger.debug('set: %s, new:%s', str(set), str(new_data))
-    if not 'Kg' in new_data:
-        return
-    rows = set.select()
-    for row in rows:
-        try:
-            if row.Kg != new_data.Kg:
-                set_user_setting('peso', new_data.Kg or 75)
-                logger.debug("%s: '%s'->'%s'", callback, row.Kg, new_data.Kg)
-        except AttributeError as ex:
-            logger.error("AttributeError %s: '%s''", str(ex), str(row))
-        except Exception as ex:
-            logger.error("%s: '%s''", str(ex), str(row))
-
-def recuerda_peso_ins(new_data):
-    logger.debug('new:%s',  str(new_data))
-    if not 'Kg' in new_data:
-        return
-    set_user_setting('peso', new_data.Kg or 75)
-
-db.peso._before_update.append(lambda s, f: recuerda_peso('recuerda_peso', s, f))
-db.peso._before_insert.append(lambda f: recuerda_peso_ins(f))
-# db.videos._before_delete.append(lambda s: video_delete('before_delete', s))
+# def recuerda_peso(callback, set, new_data):
+#     logger.debug('set: %s, new:%s', str(set), str(new_data))
+#     if not 'Kg' in new_data:
+#         return
+#     rows = set.select()
+#     for row in rows:
+#         try:
+#             if row.Kg != new_data.Kg:
+#                 set_user_setting('peso', new_data.Kg or 75)
+#                 logger.debug("%s: '%s'->'%s'", callback, row.Kg, new_data.Kg)
+#         except AttributeError as ex:
+#             logger.error("AttributeError %s: '%s''", str(ex), str(row))
+#         except Exception as ex:
+#             logger.error("%s: '%s''", str(ex), str(row))
+#
+# def recuerda_peso_ins(new_data):
+#     logger.debug('new:%s',  str(new_data))
+#     if not 'Kg' in new_data:
+#         return
+#     set_user_setting('peso', new_data.Kg or 75)
+#
+# db.peso._before_update.append(lambda s, f: recuerda_peso('recuerda_peso', s, f))
+# db.peso._before_insert.append(lambda f: recuerda_peso_ins(f))
+# # db.videos._before_delete.append(lambda s: video_delete('before_delete', s))
 db.commit()
 
 # logger.debug('DB tables setup')

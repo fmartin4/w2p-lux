@@ -6,14 +6,16 @@
 # ----------------------------------------------------------------------------------------------------------------------
 response.menu = [
     (T('Home'), False, URL('default', 'index'), []),
+    (T('Media'), False, URL('default', 'media_diaria'), []),
     # (T('Edit'), False, URL('default', 'edit')),
-    (T('Contorno'), False, URL('default', 'contorno')),
-    (T('Pliegues'), False, URL('default', 'pliegues')),
-    (T('Suspender RAUL'), False, URL('default', 'suspend')),
+    (T('Auto import'), False, URL('lux', 'auto_import')),
+    (T('Entre fechas'), False, URL('lux', 'date_range')),
+    # (T('Pliegues'), False, URL('default', 'pliegues')),
+    # (T('Suspender RAUL'), False, URL('default', 'suspend')),
     (T('Opciones'), False, URL('default', 'options')),
-    (T('Acciones'), False, '#', [
-        (T('Suspender'), False, URL('default', 'suspend')),
-    ] )
+    # (T('Acciones'), False, '#', [
+    #     (T('Suspender'), False, URL('default', 'suspend')),
+    # ] )
 ]
 
 
