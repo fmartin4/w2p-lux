@@ -53,7 +53,7 @@ def date_range():
         prev = session.returnto
         session.returnto = session.returnto or request.env['HTTP_REFERER']
         # logger.debug("form.else (ni errores ni aceptado aun), retono a %s->%s", prev, session.returnto)
-
+    response.view = 'generic.html'  # use a generic view
     return dict(form=form)
 
 
