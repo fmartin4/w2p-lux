@@ -81,7 +81,13 @@ def tbl2db(table :list):
         time_local += datetime.timedelta(hours=rec[1 ] -1)
         utc_offset = time_local.replace(tzinfo=datetime.timezone.utc ) -time_local.astimezone(datetime.timezone.utc)
         time_local -= utc_offset
-        db.precio.update_or_insert(db.precio.momento == time_local, momento=time_local, Peaje=Peaje ,PVPC=PVPC)
+        #        row.update_record(dia=row.momento.date(), hora=row.momento.time().hour)
+
+        db.precio.update_or_insert(db.precio.momento == time_local,
+                                   # momento=time_local,
+                                   dia=time_local.date(),
+                                   hora=time_local.time().hour,
+                                   Peaje=Peaje ,PVPC=PVPC)
         # rs = db((db.precio.time == time_local))
         # dbrecs = rs.select()
         # dbrec = dbrecs.first()

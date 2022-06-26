@@ -5,6 +5,14 @@ def auto_import():
     auto_import_silent()
     redirect(request.env['HTTP_REFERER'])
 
+@auth.requires_login()
+def retime():
+    rows = db(db.precio).select()
+    for row in rows:
+        row.update_record(dia=row.momento.date(), hora=row.momento.time().hour)
+    db.commit()
+    redirect(request.env['HTTP_REFERER'])
+
 
 @auth.requires_login()
 def date_range():
@@ -60,4 +68,4 @@ def croned():
     logger.debug('cron order')
     res = auto_import_silent()
     # with open(r'c:\temp\kk.log','a+') as log:
-    #     log.writelines(['%s log' % datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S'), res])
+    #     log.writelines(['%s log' % datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S'), res+'\n'])

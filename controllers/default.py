@@ -32,7 +32,7 @@ def index():
 
     query = (db.precio.id)
     grid = SQLFORM.grid(query, user_signature=False, showbuttontext=False, args=request.args[:1],
-                        exportclasses=export_classes, paginate=lines, orderby=~db.precio.momento)
+                        exportclasses=export_classes, paginate=lines, orderby=(~db.precio.dia|db.precio.hora))
     # , maxtextlengths={'videos.nombre': 110, 'videos.ruta': 70} links=links, paginate=10, editable=False,
     #  args=request.args[:1], , create=False, deletable=False  deletable=True, create=False, user_signature=False,
     #  showbuttontext=False,

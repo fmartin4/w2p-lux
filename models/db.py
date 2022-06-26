@@ -231,12 +231,12 @@ sizef = lambda x, row: \
         else locale.format_string('%d', x, True)
 
 db.define_table('precio',
-                Field('momento', 'datetime',
-                      represent=(lambda x, row: x.strftime('%Y-%m-%d %H:%M:%S') if x else '') ,
-                      required=True),
-                      # default=(lambda: date.today())),
-                # Field('dia','date'),
-                # Field('hora', 'integer'),
+                # Field('momento', 'datetime',
+                #       represent=(lambda x, row: x.strftime('%Y-%m-%d %H:%M:%S') if x else '') ,
+                #       required=True),
+                #       # default=(lambda: date.today())),
+                Field('dia','date'),
+                Field('hora', 'integer'),
                 # Field.Virtual('dia', lambda row: row.precio.momento.date()),
                 # Field.Virtual('hora', lambda row: row.precio.momento.time().hour),
                 Field('PVPC', 'double',
