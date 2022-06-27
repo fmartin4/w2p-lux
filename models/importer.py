@@ -61,13 +61,12 @@ def getWebPage(start, end, out_file):
 
 
 def last_date_imported():
-    rows = db(db.precio).select()
-    row = rows.last()
+    row = db(db.precio).select(orderby=~db.precio.dia).first()
     if row:
-        logger.debug("time %s PVPC %f Peaje %s", row.momento, row.PVPC, row.Peaje)
-        return row.momento
+        logger.debug("time %s PVPC %f Peaje %s", row.dia, row.PVPC, row.Peaje)
+        return row.dia
     else:
-        return datetime.datetime.now()
+        return datetime.datetime.now().date()
 
 def tbl2db(table :list):
     # create xls dir if not exists
@@ -81,22 +80,16 @@ def tbl2db(table :list):
         time_local += datetime.timedelta(hours=rec[1 ] -1)
         utc_offset = time_local.replace(tzinfo=datetime.timezone.utc ) -time_local.astimezone(datetime.timezone.utc)
         time_local -= utc_offset
-        #        row.update_record(dia=row.momento.date(), hora=row.momento.time().hour)
 
-        db.precio.update_or_insert(db.precio.momento == time_local,
-                                   # momento=time_local,
-                                   dia=time_local.date(),
-                                   hora=time_local.time().hour,
-                                   Peaje=Peaje ,PVPC=PVPC)
-        # rs = db((db.precio.time == time_local))
-        # dbrecs = rs.select()
-        # dbrec = dbrecs.first()
-        # if dbrec:
-        #     dbrec.update_record(Peaje=Peaje ,PVPC=PVPC)  # rec.update_record(**args)
-        #     logger.debug(f'update {time_local}')
-        # else:
-        #     db.precio.insert(time=time_local, Peaje=Peaje ,PVPC=PVPC)
-        #     logger.debug(f'insert {time_local}')
+        dia, hora = time_local.date(), time_local.time().hour
+        # db.precio.update_or_insert((db.precio.dia == dia & db.precio.hora == hora), dia=dia, hora=hora, Peaje=Peaje ,PVPC=PVPC)
+        dbrec = db((db.precio.dia == dia) & (db.precio.hora == hora)).select().first()
+        if dbrec is not None:
+            dbrec.update_record(Peaje=Peaje ,PVPC=PVPC)  # rec.update_record(**args)
+            logger.debug(f'update {time_local}')
+        else:
+            db.precio.insert(dia=dia, hora=hora, Peaje=Peaje ,PVPC=PVPC)
+            logger.debug(f'insert {time_local}')
     db.commit()
     return True
 
