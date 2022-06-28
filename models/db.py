@@ -6,11 +6,11 @@
 # -------------------------------------------------------------------------
 from gluon.contrib.appconfig import AppConfig
 from gluon.tools import Auth
-from gluon.scheduler import Scheduler
-from pathlib import Path
 import logging
 import locale
-import datetime #import date
+# from gluon.scheduler import Scheduler
+# from pathlib import Path
+# import datetime #import date
 
 # locale.setlocale(locale.LC_ALL, 'Spanish')
 
@@ -81,8 +81,8 @@ if configuration.get('app.production'):
 else:
     logger = initLog(logging.DEBUG)
 
-logger.info('%s by %s, producción: %s %s', configuration.get('app.name'), configuration.get('app.author')
-            , str(configuration.get('app.production')), configuration.get('app.description'))
+# logger.info('%s by %s, producción: %s %s', configuration.get('app.name'), configuration.get('app.author')
+#             , str(configuration.get('app.production')), configuration.get('app.description'))
 
 if not request.env.web2py_runtime_gae:
     # ---------------------------------------------------------------------

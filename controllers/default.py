@@ -7,6 +7,9 @@
 #
 
 # ---- example index page ----
+import datetime
+
+
 @auth.requires_login()
 def index():
     # logger.debug("args: %s vars: %s", str(request.args), str(request.vars))
@@ -83,90 +86,6 @@ def fromisoformat(date_str: str):
 
     return None
 
-
-#
-# @auth.requires_login()
-# def suspend():
-#     # goto=XML('http://192.168.0.12:8000/suspender/default/suspend')
-#     goto = request.env.http_referer
-#     url = URL('suspender', 'default', 'suspend', vars=dict(goto=goto), scheme='http', host='192.168.0.12:8000')
-#     logger.debug("args: %s vars: %s url:%s", str(request.args), str(request.vars), url)
-#     # logger.debug("args: %s vars: %s, goto: %s", str(request.args), str(request.vars), str(goto))
-#     redirect(url)
-#     # return A('Suspender', _href=url)
-#
-#
-# @auth.requires_login()
-# def contorno():
-#     logger.debug("args: %s vars: %s", str(request.args), str(request.vars))
-#     if not session.flash_sent:
-#         session.flash_sent = True
-#     response.title = T("Progreso")
-#     response.subtitle = T("Contorno")
-#     # links = [
-#     #     lambda row: A('', _data_toggle="tooltip", _title="Calcular IGC", _class='fa fa-desktop',
-#     #                   _href=URL("default", "igc", args=[row.id]))
-#     #
-#     #     # oi oi-monitor fas fa-tv  btn btn-primary fa fa-desktop
-#     # ]
-#     export_classes = dict(json=False, html=False, tsv=False, xml=False, csv_with_hidden_cols=False,
-#                           tsv_with_hidden_cols=False)
-#     lines = int(get_cookie_setting('lines', 18))
-#     query = (db.contorno.id != None)
-#
-#     grid = SQLFORM.grid(query, user_signature=False, showbuttontext=False,
-#                         args=request.args[:1], exportclasses=export_classes,
-#                         paginate=lines, maxtextlengths={'videos.nombre': 110, 'videos.ruta': 70},
-#                         orderby=~db.contorno.fecha)
-#     # links=links, paginate=10, editable=False, args=request.args[:1], , create=False, deletable=False  deletable=True, create=False, user_signature=False, showbuttontext=False,
-#     response.view = 'generic.html'
-#     return dict(grid=grid)
-#
-#
-# @auth.requires_login()
-# def pliegues():
-#     logger.debug("args: %s vars: %s", str(request.args), str(request.vars))
-#     if not session.flash_sent:
-#         session.flash_sent = True
-#     response.subtitle = T("pliegues")
-#     session.counter = (session.counter or 0) + 1
-#
-#     # links = [[x.stem, "visualiza", dict(file=x.name)] for x in p.iterdir() if x.is_file()]
-#     links = [
-#         # lambda row: A('', _data_toggle="tooltip", _title="Borrar video del disco",
-#         #               _class='icon trash icon-trash glyphicon glyphicon-trash',
-#         #               _href=URL("default", "borra", args=[row.id], vars=request.vars)),
-#         lambda row: A('', _data_toggle="tooltip", _title="Calcular IGC", _class='fa fa-desktop',
-#                       _href=URL("default", "igc", args=[row.id]))
-#
-#         # oi oi-monitor fas fa-tv  btn btn-primary fa fa-desktop
-#     ]
-#     export_classes = dict(json=False, html=False, tsv=False, xml=False, csv_with_hidden_cols=False,
-#                           tsv_with_hidden_cols=False)
-#     lines = int(get_cookie_setting('lines', 18))
-#     query = (db.igc.id != None)
-#
-#     grid = SQLFORM.grid(query, user_signature=False, showbuttontext=False,
-#                         links=links, args=request.args[:1], exportclasses=export_classes,
-#                         paginate=lines, maxtextlengths={'videos.nombre': 110, 'videos.ruta': 70},
-#                         orderby=~db.igc.fecha)
-#     # paginate=10, editable=False, args=request.args[:1], , create=False, deletable=False  deletable=True, create=False, user_signature=False, showbuttontext=False,
-#     # response.view = 'generic.html'
-#     return dict(grid=grid)
-#
-#
-# def get_igc(row):
-#     if row and row.Adbomen and row.Pectoral and row.Cuadriceps:  # and rows[0].Edad
-#         nace = fromisoformat(get_user_setting('nacimiento', '01/02/1965'))
-#         edad = (date.today() - nace).days / 365.25
-#         pliegues = row.Adbomen + row.Pectoral + row.Cuadriceps
-#         igc_ = 1.10938 - (0.0008267 + 0.0000016) * pliegues - 0.0002574 * edad
-#         igc_ = 495 / igc_ - 450
-#         # logger.debug("IGC: %.2f", igc_)
-#         return igc_
-#     else:
-#         return None
-
 @auth.requires_login()
 def peso_chart():
     logger.debug("args: %s vars: %s", str(request.args), str(request.vars))
@@ -185,84 +104,39 @@ def peso_chart():
 
 
 @auth.requires_login()
-def pliegues_chart():
+def precio_chart():
+    DAYS=7
     logger.debug("args: %s vars: %s", str(request.args), str(request.vars))
     if (len(request.args) == 1 and request.args[0] == 'peso'):
         d = peso_chart()
         logger.debug("Graficas de peso: %s", str(d))
         return d
-    rs = db(db.igc.id != 0)
-    rows = rs.select(orderby=db.igc.fecha)
+
+    rows = db(db.precio.dia>datetime.datetime.now()-datetime.timedelta(days=DAYS)).select(orderby=(db.precio.dia|db.precio.hora))
+    if not rows:
+        return 'Sin filas a mostrar en los dos últimos días'
+
     # session.borra_vars = session.borra_vars or request.vars
-    labels = []
-    series1 = {'Adbomen': [], 'Pectoral': [], 'Cuadriceps': []}
-    series2 = {'igc': [], 'peso': []}
-    if rows:
-        for row in rows:
-            labels.append(str(row.fecha))
-            for serie in series1:
-                series1[serie].append(row[serie])
-            series2['igc'].append(get_igc(row))
-            series2['peso'].append(row.Peso_Kg)
-    for serie in series2:
-        series2[serie] = str(series2[serie])
+    labels = str([x for x in range(24)])  # Las x son las 24 horas del día
+    fechas = db(db.precio.dia>datetime.datetime.now()-datetime.timedelta(days=DAYS)).select(db.precio.dia, groupby=db.precio.dia)
+    series1 = dict()
+    for fecha in fechas:
+        series1[str(fecha.dia)] = [0 for x in range(24)]       # Los días son las series, ubicamos 24 huecos
+    # series2 = {'igc': [], 'peso': []}
+    for row in rows:
+        # labels.append(str(row.dia))
+        str_dia = str(row.dia)
+        # logger.debug("str_dia: %s, hora: %d, PVPC:%d", str_dia,row.hora,row.PVPC)
+        series1[str_dia][row.hora] = row.PVPC
+        # for serie in series1:
+        #     series1[serie].append(row[serie])
+        # series2['igc'].append(get_igc(row))
+        # series2['peso'].append(row.Peso_Kg)
+    # for serie in series2:
+    #     series2[serie] = str(series2[serie])
     for serie in series1:
-        series1[serie] = str(series1[serie])
-    return dict(labels=labels, charts=[series1, series2])
-
-
-#
-# @auth.requires_login()
-# def edit():
-#     logger.debug("args: %s vars: %s", str(request.args), str(request.vars))
-#     links = [
-#         lambda row: A('', _data_toggle="tooltip", _title="Calcular IGC", _class='fa fa-desktop',
-#                       _href=URL("default", "igc", args=[row.id]))
-#     ]
-#     grid = SQLFORM.grid(db.igc, user_signature=False, links=links)
-#     # grid = SQLFORM.grid(db.igc, user_signature=False)
-#     return dict(grid=grid)
-
-
-@auth.requires_login()
-def imc():
-    logger.debug("args: %s vars: %s", str(request.args), str(request.vars))
-    grid = SQLFORM.grid(db.igc, user_signature=False)
-    return locals()
-
-
-@auth.requires_login()
-def igc():
-    logger.debug("args: %s vars: %s", str(request.args), str(request.vars))
-    rs = db(db.igc.id == request.args[0])
-    rows = rs.select()
-    session.borra_vars = session.borra_vars or request.vars
-    if rows and rows[0].Adbomen and rows[0].Pectoral and rows[0].Cuadriceps:  # and rows[0].Edad
-        nace = fromisoformat(get_user_setting('nacimiento', '01/02/1965'))
-        edad = (date.today() - nace).days / 365.25
-        pliegues = rows[0].Adbomen + rows[0].Pectoral + rows[0].Cuadriceps
-        # igc_ = 1.10938 - 0.0008267 * pliegues + 0.0000016 * pliegues - 0.0002574 * edad
-        igc_ = 1.10938 - (0.0008267 + 0.0000016) * pliegues - 0.0002574 * edad
-        igc_ = 495 / igc_ - 450
-        logger.debug("IGC: %.2f", igc_)
-        session.flash = 'IGC: %.2f' % igc_
-    else:
-        session.flash = "Sin datos para calcular IGC"
-    redirect(request.env.http_referer)
-
-
-#
-# @auth.requires_login()
-# def suspendold():
-#     # logger.debug("%s vars: %s", request.args, request.vars)
-#     # suspend_thread.run()
-#     from datetime import timedelta as timed
-#     # logger.debug("request.now: %s", request.now)
-#     start = request.now + timed(seconds=5)
-#     rc = scheduler.queue_task('suspend', start_time=start)
-#     logger.debug("suspend scheduled(%s), redirecting", str(start))
-#     redirect(request.env.http_referer)
-#
+        series1[serie] = str(series1[serie])    # forma cutre de JSONizar la lista
+    return dict(labels=labels, charts=[series1])
 
 @auth.requires_login()
 def options():

@@ -6,13 +6,16 @@
 # ----------------------------------------------------------------------------------------------------------------------
 response.menu = [
     (T('Home'), False, URL('default', 'index'), []),
-    (T('Auto import'), False, URL('lux', 'auto_import')),
-    (T('Entre fechas'), False, URL('lux', 'date_range')),
-    (T('Opciones'), False, URL('default', 'options')),
+    (T('Gráficas'), False, URL('default', 'precio_chart'), []),
+    (T('Importar'), False, '#', [
+        (T('Auto import'), False, URL('lux', 'auto_import')),
+        (T('Entre fechas'), False, URL('lux', 'date_range')),
+    ]),
     (T('Varios'), False, '#', [
         (T('Media'), False, URL('default', 'media_diaria')),
         # (T('Refechar'), False, URL('lux', 'retime')),
-    ] )
+    ] ),
+    (T('Opciones'), False, URL('default', 'options')),
 ]
 
 
