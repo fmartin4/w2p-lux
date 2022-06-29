@@ -80,4 +80,12 @@ body {   margin-bottom: 3px; }
     color: white;
 }
 
+/*
+No chuta, el propio chart modifica el tamaño
+.cchart {
+    width: 360;
+    height: 240;
+}
+*/
+
 

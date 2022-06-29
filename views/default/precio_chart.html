@@ -5,15 +5,15 @@
 {{end}}
 
 <!--<h2>{{=' '.join(x.capitalize() for x in request.function.split('_'))}}</h2>-->
-<h2>Gráficas</h2>
-
+<h5>{{=title}}</h5>
 <div class="container">
     <div class="row">
         {{
         for i in range(len(charts)): }}
         <div id="dchart{{=i}}" class="col">
             <div class="fm4_center">
-                <canvas id="cchart{{=i}}" width="360" height="240"></canvas>
+<!--                <canvas id="cchart{{=i}}" width="360" height="240" class="cchart"></canvas>-->
+                <canvas id="cchart{{=i}}" class="cchart"></canvas>
             </div>
         </div>
         {{pass}}
@@ -32,7 +32,7 @@
 <script>
     //const backgroundColors = ['rgb(255, 99, 132)','rgb(99, 255, 132)']
     const backgroundColors = ['rgb(191,0,0)','rgb(0,191,0)','rgb(0,0,191)','rgb(191,191,0)',
-        'rgb(191,0,191)','rgb(0,191,191)','rgb(191,191,191)',
+        'rgb(191,0,191)','rgb(191,191,191)','rgb(0,191,191)',
         'rgb(127,0,0)','rgb(0,127,0)','rgb(0,0,127)','rgb(127,127,0)',
         'rgb(127,0,127)','rgb(0,127,127)','rgb(127,127,127)',
         'rgb(255,0,0)','rgb(0,255,0)','rgb(0,0,255)','rgb(255,255,0)',
@@ -47,7 +47,7 @@
         'rgb(255,191,255)','rgb(191,255,255)','rgb(255,255,255)']
 
     const borderColors = ['rgb(220,0,0)','rgb(0,220,0)','rgb(0,0,220)','rgb(220,220,0)',
-        'rgb(220,0,220)','rgb(0,220,220)','rgb(220,220,220)',
+        'rgb(220,0,220)','rgb(220,220,220)','rgb(0,220,220)',
         'rgb(127,0,0)','rgb(0,127,0)','rgb(0,0,127)','rgb(127,127,0)',
         'rgb(127,0,127)','rgb(0,127,127)','rgb(127,127,127)',
         'rgb(191,0,0)','rgb(0,191,0)','rgb(0,0,191)','rgb(191,191,0)',

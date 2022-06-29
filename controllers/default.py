@@ -136,7 +136,7 @@ def precio_chart():
     #     series2[serie] = str(series2[serie])
     for serie in series1:
         series1[serie] = str(series1[serie])    # forma cutre de JSONizar la lista
-    return dict(labels=labels, charts=[series1])
+    return dict(title='PVPC por días',labels=labels, charts=[series1])
 
 @auth.requires_login()
 def options():
