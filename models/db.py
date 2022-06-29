@@ -26,8 +26,8 @@ def initLog(level=logging.DEBUG, logfile=None, format='%(asctime)s %(levelname)-
     Returns:
     """
     mainlog = logging.getLogger()
-    mainlog.setLevel(logging.WARNING) # DEBUG
-    fm4log = logging.getLogger("web2py.app.discat")
+    # mainlog.setLevel(logging.WARNING) # DEBUG
+    fm4log = logging.getLogger("web2py.app.lux")
     fm4log.setLevel(level)
 
     # while len(fm4log.handlers) > 0:
